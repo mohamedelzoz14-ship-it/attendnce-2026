@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onsite — Attendance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#0A0A0A;
+    --near-black:#141414;
+    --white:#FFFFFF;
+    --gray-50:#FAFAFA;
+    --gray-100:#F2F2F2;
+    --gray-200:#E5E5E5;
+    --gray-300:#D4D4D4;
+    --gray-500:#8A8A8A;
+    --gray-600:#5C5C5C;
+    --gray-800:#262626;
+    --green:#1B7A3D;
+    --green-bg:#EAF6EE;
+    --amber:#9A6700;
+    --amber-bg:#FFF6E0;
+    --red:#B3261E;
+    --red-bg:#FDECEA;
+    --radius-sm:6px;
+    --radius-md:10px;
+    --radius-lg:16px;
+    --shadow-sm:0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:0 4px 16px rgba(0,0,0,0.08);
+    --shadow-lg:0 12px 40px rgba(0,0,0,0.14);
+    --ease:cubic-bezier(0.4,0,0.2,1);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--gray-50);
+    color:var(--black);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+
+  button{font-family:inherit;cursor:pointer;border:none;background:none;}
+  input{font-family:inherit;}
+  ::selection{background:var(--black);color:var(--white);}
+
+  /* Focus visibility for accessibility */
+  a:focus-visible, button:focus-visible, input:focus-visible{
+    outline:2px solid var(--black);
+    outline-offset:2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ============ LOGIN VIEW ============ */
+  #view-login.active{
+    display:flex;
+    min-height:100vh;
+  }
+
+  .login-brand{
+    flex:1;
+    background:var(--black);
+    color:var(--white);
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:56px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .login-brand::after{
+    content:"";
+    position:absolute;
+    right:-120px;
+    bottom:-120px;
+    width:420px;
+    height:420px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,0.08);
+  }
+  .login-brand::before{
+    content:"";
+    position:absolute;
+    right:-40px;
+    bottom:-200px;
+    width:420px;
+    height:420px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,0.06);
+  }
+
+  .brand-mark{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    font-weight:800;
+    font-size:15px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    z-index:1;
+  }
+  .mark{
+    width:26px; height:26px;
+    background:var(--white);
+    clip-path:polygon(0 0, 100% 0, 100% 100%, 34% 100%, 0 66%);
+    position:relative;
+    flex-shrink:0;
+  }
+  .mark::after{
+    content:"";
+    position:absolute;
+    width:5px; height:5px;
+    border-radius:50%;
+    background:var(--black);
+    left:5px;
+    bottom:5px;
+    animation:markPulse 2.2s var(--ease) infinite;
+  }
+  .mark.dark{background:var(--black);}
+  .mark.dark::after{background:var(--white);}
+  @keyframes markPulse{
+    0%, 100%{opacity:1; transform:scale(1);}
+    50%{opacity:0.4; transform:scale(0.8);}
+  }
+
+  .login-copy{z-index:1; max-width:420px;}
+  .login-copy h1{
+    font-size:38px;
+    font-weight:800;
+    line-height:1.15;
+    letter-spacing:-0.02em;
+    margin-bottom:14px;
+  }
+  .login-copy p{
+    color:var(--gray-300);
+    font-size:15px;
+    line-height:1.6;
+  }
+
+  .login-foot{
+    z-index:1;
+    display:flex;
+    gap:28px;
+    font-size:13px;
+    color:var(--gray-500);
+  }
+
+  .login-panel{
+    width:460px;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px;
+    background:var(--white);
+  }
+
+  .login-form{width:100%; max-width:340px;}
+  .login-form h2{font-size:22px; font-weight:700; margin-bottom:6px; letter-spacing:-0.01em;}
+  .login-form .sub{color:var(--gray-600); font-size:14px; margin-bottom:32px;}
+
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--gray-800);
+    margin-bottom:7px;
+  }
+  .field input{
+    width:100%;
+    padding:12px 14px;
+    border:1px solid var(--gray-200);
+    border-radius:var(--radius-sm);
+    font-size:14.5px;
+    background:var(--gray-50);
+    transition:border-color 0.15s var(--ease), background 0.15s var(--ease);
+  }
+  .field input:focus{
+    border-color:var(--black);
+    background:var(--white);
+    outline:none;
+  }
+  .field input::placeholder{color:var(--gray-500);}
+
+  .btn-primary{
+    width:100%;
+    background:var(--black);
+    color:var(--white);
+    padding:13px;
+    border-radius:var(--radius-sm);
+    font-weight:600;
+    font-size:14.5px;
+    margin-top:8px;
+    transition:transform 0.12s var(--ease), background 0.15s var(--ease);
+  }
+  .btn-primary:hover{background:var(--near-black);}
+  .btn-primary:active{transform:scale(0.98);}
+
+  .divider{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:20px 0;
+    color:var(--gray-500);
+    font-size:12px;
+  }
+  .divider::before, .divider::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--gray-200);
+  }
+
+  .btn-secondary{
+    width:100%;
+    border:1px solid var(--gray-200);
+    padding:12px;
+    border-radius:var(--radius-sm);
+    font-weight:600;
+    font-size:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    color:var(--gray-800);
+    transition:border-color 0.15s var(--ease), background 0.15s var(--ease);
+  }
+  .btn-secondary:hover{border-color:var(--gray-500); background:var(--gray-50);}
+
+  .login-error{
+    display:none;
+    background:var(--red-bg);
+    color:var(--red);
+    font-size:13px;
+    padding:10px 12px;
+    border-radius:var(--radius-sm);
+    margin-bottom:16px;
+  }
+  .login-error.show{display:block;}
+
+  .demo-hint{
+    margin-top:24px;
+    font-size:12px;
+    color:var(--gray-500);
+    background:var(--gray-50);
+    border:1px dashed var(--gray-200);
+    padding:10px 12px;
+    border-radius:var(--radius-sm);
+    line-height:1.6;
+  }
+
+  /* ============ APP SHELL (Employee + Admin) ============ */
+  .app-shell{display:flex; min-height:100vh;}
+
+  .sidebar{
+    width:232px;
+    flex-shrink:0;
+    background:var(--black);
+    color:var(--white);
+    display:flex;
+    flex-direction:column;
+    padding:22px 14px;
+    position:sticky;
+    top:0;
+    height:100vh;
+  }
+
+  .sidebar-brand{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:6px 10px 26px 10px;
+    font-weight:800;
+    font-size:13.5px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+  }
+  .sidebar-brand .mark{width:20px; height:20px;}
+  .sidebar-brand .mark::after{width:4px; height:4px; left:4px; bottom:4px;}
+
+  .nav-group{display:flex; flex-direction:column; gap:2px; margin-bottom:4px;}
+  .nav-item{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:10px 12px;
+    border-radius:var(--radius-sm);
+    color:var(--gray-300);
+    font-size:13.5px;
+    font-weight:500;
+    transition:background 0.15s var(--ease), color 0.15s var(--ease);
+    width:100%;
+    text-align:left;
+  }
+  .nav-item svg{width:17px; height:17px; flex-shrink:0; opacity:0.85;}
+  .nav-item:hover{background:rgba(255,255,255,0.06); color:var(--white);}
+  .nav-item.active{background:var(--white); color:var(--black);}
+  .nav-item.active svg{opacity:1;}
+
+  .sidebar-footer{
+    margin-top:auto;
+    padding-top:16px;
+    border-top:1px solid rgba(255,255,255,0.1);
+  }
+  .sidebar-user{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 10px;
+    border-radius:var(--radius-sm);
+  }
+  .avatar{
+    width:32px; height:32px;
+    border-radius:50%;
+    background:var(--gray-800);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700;
+    flex-shrink:0;
+  }
+  .sidebar-user .who{display:flex; flex-direction:column; min-width:0;}
+  .sidebar-user .who strong{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .sidebar-user .who span{font-size:11.5px; color:var(--gray-500);}
+  .logout-btn{
+    margin-top:8px;
+    width:100%;
+    text-align:left;
+    padding:9px 10px;
+    font-size:12.5px;
+    color:var(--gray-500);
+    border-radius:var(--radius-sm);
+    transition:background 0.15s var(--ease), color 0.15s var(--ease);
+  }
+  .logout-btn:hover{background:rgba(255,255,255,0.06); color:var(--white);}
+
+  .main{flex:1; padding:32px 40px; max-width:1180px;}
+
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:32px;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+  .topbar h1{font-size:24px; font-weight:700; letter-spacing:-0.01em;}
+  .topbar .date-sub{color:var(--gray-600); font-size:13.5px; margin-top:4px;}
+
+  .clock-chip{
+    background:var(--white);
+    border:1px solid var(--gray-200);
+    border-radius:var(--radius-md);
+    padding:12px 18px;
+    text-align:right;
+    box-shadow:var(--shadow-sm);
+  }
+  .clock-chip .time{font-size:20px; font-weight:700; letter-spacing:-0.01em; font-variant-numeric:tabular-nums;}
+  .clock-chip .zone{font-size:11.5px; color:var(--gray-500); margin-top:2px;}
+
+  /* ============ EMPLOYEE DASHBOARD ============ */
+  .checkin-card{
+    background:var(--white);
+    border:1px solid var(--gray-200);
+    border-radius:var(--radius-lg);
+    padding:40px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    box-shadow:var(--shadow-sm);
+    margin-bottom:24px;
+  }
+
+  .status-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:5px 12px;
+    border-radius:100px;
+    font-size:12px;
+    font-weight:600;
+    margin-bottom:22px;
+  }
+  .status-badge .dot{width:6px; height:6px; border-radius:50%;}
+  .status-badge.out{background:var(--gray-100); color:var(--gray-600);}
+  .status-badge.out .dot{background:var(--gray-500);}
+  .status-badge.present{background:var(--green-bg); color:var(--green);}
+  .status-badge.present .dot{background:var(--green);}
+  .status-badge.late{background:var(--amber-bg); color:var(--amber);}
+  .status-badge.late .dot{background:var(--amber);}
+
+  .checkin-btn{
+    width:180px; height:180px;
+    border-radius:50%;
+    background:var(--black);
+    color:var(--white);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    transition:transform 0.15s var(--ease), background 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    box-shadow:0 0 0 0 rgba(0,0,0,0);
+  }
+  .checkin-btn:hover{transform:scale(1.03);}
+  .checkin-btn:active{transform:scale(0.97);}
+  .checkin-btn svg{width:30px; height:30px;}
+  .checkin-btn .label{font-size:15px; font-weight:700; letter-spacing:0.01em;}
+  .checkin-btn .sub{font-size:11.5px; color:var(--gray-300); font-weight:500;}
+
+  .checkin-btn.checked-in{
+    background:var(--white);
+    color:var(--black);
+    border:2px solid var(--black);
+    box-shadow:0 0 0 6px var(--green-bg);
+  }
+  .checkin-btn.checked-in .sub{color:var(--gray-600);}
+
+  .checkin-btn.pulse{animation:pulseRing 1.8s var(--ease) infinite;}
+  .checkin-btn:disabled{cursor:not-allowed; opacity:0.55;}
+  .checkin-btn:disabled:hover{transform:none;}
+  @keyframes pulseRing{
+    0%{box-shadow:0 0 0 0 rgba(27,122,61,0.28);}
+    70%{box-shadow:0 0 0 14px rgba(27,122,61,0);}
+    100%{box-shadow:0 0 0 0 rgba(27,122,61,0);}
+  }
+
+  .checkin-meta{margin-top:22px; font-size:13.5px; color:var(--gray-600);}
+  .checkin-meta strong{color:var(--black); font-variant-numeric:tabular-nums;}
+
+  .location-note{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:18px;
+    padding:9px 14px;
+    border-radius:100px;
+    font-size:12.5px;
+    font-weight:500;
+    background:var(--gray-100);
+    color:var(--gray-600);
+  }
+  .location-note svg{width:15px; height:15px; flex-shrink:0;}
+  .location-note.checking{background:var(--gray-100); color:var(--gray-600);}
+  .location-note.ok{background:var(--green-bg); color:var(--green);}
+  .location-note.error{background:var(--red-bg); color:var(--red);}
+
+  .info-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:16px;
+    margin-bottom:24px;
+  }
+  .info-card{
+    background:var(--white);
+    border:1px solid var(--gray-200);
+    border-radius:var(--radius-md);
+    padding:18px 20px;
+  }
+  .info-card .k{font-size:11.5px; color:var(--gray-500); font-weight:600; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:8px;}
+  .info-card .v{font-size:17px; font-weight:700;}
+  .info-card .v-sub{font-size:12.5px; color:var(--gray-600); margin-top:3px;}
+
+  .panel{
+    background:var(--white);
+    border:1px solid var(--gray-200);
+    border-radius:var(--radius-md);
+    overflow:hidden;
+    box-shadow:var(--shadow-sm);
+  }
+  .panel-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 22px;
+    border-bottom:1px solid var(--gray-200);
+  }
+  .panel-head h3{font-size:15px; font-weight:700;}
+  .panel-head .link{font-size:12.5px; font-weight:600; color:var(--gray-600);}
+
+  table{width:100%; border-collapse:collapse;}
+  th{
+    text-align:left;
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--gray-500);
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    padding:12px 22px;
+    background:var(--gray-50);
+    border-bottom:1px solid var(--gray-200);
+  }
+  td{
+    padding:14px 22px;
+    font-size:13.5px;
+    border-bottom:1px solid var(--gray-100);
+    color:var(--gray-800);
+  }
+  tr:last-child td{border-bottom:none;}
+  td.strong{font-weight:600; color:var(--black);}
+
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:3px 10px;
+    border-radius:100px;
+    font-size:11.5px;
+    font-weight:600;
+  }
+  .pill .dot{width:5px; height:5px; border-radius:50%;}
+  .pill.present{background:var(--green-bg); color:var(--green);}
+  .pill.present .dot{background:var(--green);}
+  .pill.late{background:var(--amber-bg); color:var(--amber);}
+  .pill.late .dot{background:var(--amber);}
+  .pill.absent{background:var(--red-bg); color:var(--red);}
+  .pill.absent .dot{background:var(--red);}
+  .pill.leave{background:var(--gray-100); color:var(--gray-600);}
+  .pill.leave .dot{background:var(--gray-500);}
+
+  /* ============ ADMIN DASHBOARD ============ */
+  .kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:16px;
+    margin-bottom:24px;
+  }
+  .kpi-card{
+    background:var(--white);
+    border:1px solid var(--gray-200);
+    border-radius:var(--radius-md);
+    padding:20px 22px;
+    box-shadow:var(--shadow-sm);
+  }
+  .kpi-card .top{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;}
+  .kpi-card .label{font-size:12.5px; font-weight:600; color:var(--gray-600);}
+  .kpi-icon{
+    width:30px; height:30px;
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .kpi-icon svg{width:15px; height:15px;}
+  .kpi-icon.present{background:var(--green-bg); color:var(--green);}
+  .kpi-icon.late{background:var(--amber-bg); color:var(--amber);}
+  .kpi-icon.absent{background:var(--red-bg); color:var(--red);}
+  .kpi-icon.leave{background:var(--gray-100); color:var(--gray-600);}
+  .kpi-card .value{font-size:30px; font-weight:800; letter-spacing:-0.02em;}
+  .kpi-card .delta{font-size:12px; color:var(--gray-500); margin-top:4px;}
+
+  .filters-row{
+    display:flex;
+    gap:10px;
+    padding:16px 22px;
+    border-bottom:1px solid var(--gray-200);
+    flex-wrap:wrap;
+  }
+  .select-chip{
+    padding:8px 12px;
+    border:1px solid var(--gray-200);
+    border-radius:var(--radius-sm);
+    font-size:13px;
+    color:var(--gray-800);
+    background:var(--gray-50);
+  }
+  .select-chip:focus{outline:none; border-color:var(--black);}
+
+  .chart-row{
+    display:grid;
+    grid-template-columns:1.4fr 1fr;
+    gap:16px;
+    margin-bottom:24px;
+  }
+  .chart-card{
+    background:var(--white);
+    border:1px solid var(--gray-200);
+    border-radius:var(--radius-md);
+    padding:20px 22px;
+    box-shadow:var(--shadow-sm);
+  }
+  .chart-card h3{font-size:14px; font-weight:700; margin-bottom:18px;}
+
+  .bar-chart{display:flex; align-items:flex-end; gap:12px; height:140px; padding-top:10px;}
+  .bar-chart .bar-wrap{flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; height:100%; justify-content:flex-end;}
+  .bar-chart .bar{width:100%; max-width:30px; border-radius:5px 5px 0 0; background:var(--black); transition:transform 0.2s var(--ease);}
+  .bar-chart .bar:hover{transform:scaleY(1.03);}
+  .bar-chart .bar-label{font-size:11px; color:var(--gray-500); font-weight:600;}
+
+  .donut-wrap{display:flex; align-items:center; gap:20px;}
+  .donut{
+    width:120px; height:120px;
+    border-radius:50%;
+    background:conic-gradient(var(--black) 0% 78%, var(--gray-300) 78% 90%, var(--gray-100) 90% 100%);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    position:relative;
+  }
+  .donut::after{
+    content:"";
+    width:76px; height:76px;
+    border-radius:50%;
+    background:var(--white);
+    position:absolute;
+  }
+  .donut-center{position:relative; z-index:1; text-align:center;}
+  .donut-center .n{font-size:18px; font-weight:800;}
+  .donut-center .l{font-size:9.5px; color:var(--gray-500); font-weight:600;}
+  .legend{display:flex; flex-direction:column; gap:10px;}
+  .legend-item{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--gray-800);}
+  .legend-item .sw{width:9px; height:9px; border-radius:2px; flex-shrink:0;}
+
+  .store-cell{display:flex; align-items:center; gap:9px;}
+  .store-dot{width:7px; height:7px; border-radius:50%; background:var(--gray-800); flex-shrink:0;}
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px){
+    #view-login.active{flex-direction:column;}
+    .login-brand{padding:32px 24px; min-height:220px;}
+    .login-copy h1{font-size:26px;}
+    .login-panel{width:100%; padding:32px 24px;}
+
+    .app-shell{flex-direction:column;}
+    .sidebar{
+      width:100%; height:auto; position:sticky; top:0; z-index:20;
+      flex-direction:row; align-items:center; padding:12px 16px; overflow-x:auto;
+    }
+    .sidebar-brand{padding:0 14px 0 0; margin-right:6px;}
+    .nav-group{flex-direction:row;}
+    .nav-item span{display:none;}
+    .nav-item{padding:9px;}
+    .sidebar-footer{display:none;}
+    .main{padding:22px 18px;}
+    .info-grid{grid-template-columns:1fr;}
+    .kpi-grid{grid-template-columns:repeat(2,1fr);}
+    .chart-row{grid-template-columns:1fr;}
+    table{font-size:12.5px;}
+    th, td{padding:11px 14px;}
+    .topbar{align-items:stretch;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- LOGIN VIEW -->
+<!-- ============================================================ -->
+<section id="view-login" class="view active">
+  <div class="login-brand">
+    <div class="brand-mark">
+      <span class="mark"></span>
+      Onsite
+    </div>
+    <div class="login-copy">
+      <h1>Attendance, tracked the way the store actually runs.</h1>
+      <p>One tap to check in, one place to see who's on the floor — built for every store, every shift, every day.</p>
+    </div>
+    <div class="login-foot">
+      <span>222 Stores</span>
+      <span>Real-time status</span>
+      <span>Egypt Retail</span>
+    </div>
+  </div>
+
+  <div class="login-panel">
+    <form class="login-form" id="loginForm">
+      <h2>Sign in</h2>
+      <p class="sub">Use your Employee ID to access your dashboard.</p>
+
+      <div class="login-error" id="loginError">Employee ID not recognized. Try 1001, 1002, or 9000 (admin).</div>
+
+      <div class="field">
+        <label for="empId">Employee ID</label>
+        <input type="text" id="empId" placeholder="e.g. 1001" autocomplete="off" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="empPass">Password</label>
+        <input type="password" id="empPass" placeholder="••••••••" autocomplete="off">
+      </div>
+
+      <button type="submit" class="btn-primary">Sign in</button>
+
+      <div class="divider">or</div>
+
+      <button type="button" class="btn-secondary" id="msBtn">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect width="7" height="7" fill="#F35325"/><rect x="9" width="7" height="7" fill="#81BC06"/><rect y="9" width="7" height="7" fill="#05A6F0"/><rect x="9" y="9" width="7" height="7" fill="#FFBA08"/></svg>
+        Continue with Microsoft
+      </button>
+
+      <div class="demo-hint">
+        <strong>Demo access —</strong> Employee: 1001 or 1002 · Admin: 9000. Any password works in this prototype.
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- EMPLOYEE DASHBOARD -->
+<!-- ============================================================ -->
+<section id="view-employee" class="view">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="mark"></span>
+        Onsite
+      </div>
+      <nav class="nav-group">
+        <button class="nav-item active" data-emp-nav="home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-emp-nav="history">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <span>Attendance</span>
+        </button>
+        <button class="nav-item" data-emp-nav="settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.56V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.56V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 1.56 1H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"/></svg>
+          <span>Settings</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="avatar" id="empAvatar">M</div>
+          <div class="who">
+            <strong id="empName">Mohamed A.</strong>
+            <span id="empStoreLabel">EG222 · San Stefano</span>
+          </div>
+        </div>
+        <button class="logout-btn" data-logout>Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h1 id="empGreeting">Good morning, Mohamed</h1>
+          <div class="date-sub" id="empDateSub">Friday, July 3 · EG222 San Stefano</div>
+        </div>
+        <div class="clock-chip">
+          <div class="time" id="liveClock">--:--:--</div>
+          <div class="zone">Cairo (EET)</div>
+        </div>
+      </div>
+
+      <div class="checkin-card">
+        <div class="status-badge out" id="empStatusBadge">
+          <span class="dot"></span>
+          <span id="empStatusText">Not checked in</span>
+        </div>
+
+        <button class="checkin-btn" id="checkinBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="checkinIcon"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+          <span class="label" id="checkinLabel">Check In</span>
+          <span class="sub" id="checkinSub">Tap to start shift</span>
+        </button>
+
+        <div class="checkin-meta" id="checkinMeta">Shift starts 9:00 AM · Not yet checked in today</div>
+
+        <div class="location-note" id="locationNote">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span id="locationNoteText">We'll check your location when you check in.</span>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="k">Shift</div>
+          <div class="v" id="statTodayShift">9:00 AM – 6:00 PM</div>
+          <div class="v-sub" id="statTodayShiftLabel">Floor · San Stefano</div>
+        </div>
+        <div class="info-card">
+          <div class="k">This month</div>
+          <div class="v" id="statMonthDays">0 / 0 days</div>
+          <div class="v-sub" id="statMonthLate">0 late arrivals</div>
+        </div>
+        <div class="info-card">
+          <div class="k">Hours this week</div>
+          <div class="v" id="statWeekHours">0 hrs</div>
+          <div class="v-sub">Target: 40 hrs</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Recent attendance</h3>
+          <span class="link">View all</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Date</th><th>Check in</th><th>Check out</th><th>Status</th></tr>
+          </thead>
+          <tbody id="empHistoryBody">
+            <tr id="empHistoryEmpty"><td colspan="4" style="text-align:center; color:var(--gray-500); padding:26px;">No attendance recorded yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ADMIN DASHBOARD -->
+<!-- ============================================================ -->
+<section id="view-admin" class="view">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="mark"></span>
+        Onsite
+      </div>
+      <nav class="nav-group">
+        <button class="nav-item active" data-admin-nav="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-admin-nav="employees">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Employees</span>
+        </button>
+        <button class="nav-item" data-admin-nav="attendance">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <span>Attendance</span>
+        </button>
+        <button class="nav-item" data-admin-nav="reports">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-6 3 4 5-8"/></svg>
+          <span>Reports</span>
+        </button>
+        <button class="nav-item" data-admin-nav="settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.56V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.56V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 1.56 1H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"/></svg>
+          <span>Settings</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="avatar">E</div>
+          <div class="who">
+            <strong>Ehab Hussein</strong>
+            <span>Store Manager · EG222</span>
+          </div>
+        </div>
+        <button class="logout-btn" data-logout>Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h1>Store overview</h1>
+          <div class="date-sub" id="adminDateSub">Friday, July 3 · EG222 San Stefano</div>
+        </div>
+        <div class="clock-chip">
+          <div class="time" id="liveClockAdmin">--:--:--</div>
+          <div class="zone">Cairo (EET)</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="top">
+            <span class="label">Present</span>
+            <div class="kpi-icon present"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>
+          </div>
+          <div class="value" id="kpiPresent">0</div>
+          <div class="delta" id="kpiPresentSub">of 0 staff on shift</div>
+        </div>
+        <div class="kpi-card">
+          <div class="top">
+            <span class="label">Late</span>
+            <div class="kpi-icon late"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          </div>
+          <div class="value" id="kpiLate">0</div>
+          <div class="delta" id="kpiLateSub">no late arrivals yet</div>
+        </div>
+        <div class="kpi-card">
+          <div class="top">
+            <span class="label">Absent</span>
+            <div class="kpi-icon absent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></svg></div>
+          </div>
+          <div class="value" id="kpiAbsent">0</div>
+          <div class="delta">not yet checked in</div>
+        </div>
+        <div class="kpi-card">
+          <div class="top">
+            <span class="label">Missing check-out</span>
+            <div class="kpi-icon leave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          </div>
+          <div class="value" id="kpiMissing">0</div>
+          <div class="delta">from previous days</div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="chart-card">
+          <h3>Weekly attendance</h3>
+          <div class="bar-chart">
+            <div class="bar-wrap"><div class="bar" style="height:78%"></div><span class="bar-label">Mon</span></div>
+            <div class="bar-wrap"><div class="bar" style="height:88%"></div><span class="bar-label">Tue</span></div>
+            <div class="bar-wrap"><div class="bar" style="height:70%"></div><span class="bar-label">Wed</span></div>
+            <div class="bar-wrap"><div class="bar" style="height:92%"></div><span class="bar-label">Thu</span></div>
+            <div class="bar-wrap"><div class="bar" style="height:78%"></div><span class="bar-label">Fri</span></div>
+            <div class="bar-wrap"><div class="bar" style="height:55%"></div><span class="bar-label">Sat</span></div>
+            <div class="bar-wrap"><div class="bar" style="height:40%"></div><span class="bar-label">Sun</span></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3>Today's split</h3>
+          <div class="donut-wrap">
+            <div class="donut">
+              <div class="donut-center"><div class="n">78%</div><div class="l">PRESENT</div></div>
+            </div>
+            <div class="legend">
+              <div class="legend-item"><span class="sw" style="background:var(--black)"></span>Present · 14</div>
+              <div class="legend-item"><span class="sw" style="background:var(--gray-300)"></span>Late · 2</div>
+              <div class="legend-item"><span class="sw" style="background:var(--gray-100)"></span>Absent/Leave · 2</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Today's attendance</h3>
+          <span class="link">Export</span>
+        </div>
+        <div class="filters-row">
+          <select class="select-chip" id="filterStore">
+            <option value="all">All stores</option>
+            <option value="EG222">EG222 · San Stefano</option>
+          </select>
+          <select class="select-chip" id="filterDate">
+            <option value="today">Today</option>
+            <option value="all">All history</option>
+          </select>
+          <select class="select-chip" id="filterEmployee">
+            <option value="all">All employees</option>
+          </select>
+          <select class="select-chip" id="filterStatus">
+            <option value="all">All statuses</option>
+            <option value="present">Present</option>
+            <option value="late">Late</option>
+            <option value="absent">Absent</option>
+            <option value="missing">Missing check-out</option>
+          </select>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Employee</th><th>Store</th><th>Shift</th><th>Date</th><th>Check in</th><th>Check out</th><th>Status</th></tr>
+          </thead>
+          <tbody id="adminTableBody">
+            <tr><td colspan="6" style="text-align:center; color:var(--gray-500); padding:26px;">No attendance records yet — check in as an employee to see data here.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</section>
+
+<script>
+(function(){
+  "use strict";
+
+  // ================================================================
+  // CONFIG
+  // ================================================================
+  var STORAGE_KEY = "onsite_attendance_records_v1";
+  var STORE_ID = "EG222";
+  var STORE_LABEL = "EG222 · San Stefano";
+  var SHIFT_START_MIN = 9 * 60;   // 09:00
+  var SHIFT_END_MIN   = 18 * 60;  // 18:00
+  var LATE_GRACE_MIN  = 5;        // minutes of grace before "Late"
+
+  // ---- Shift types (start/end in minutes-from-midnight; end can pass midnight) ----
+  var SHIFTS = {
+    morning:   { label:"Morning",       start: 9*60,  end: 18*60 },        // 9:00 AM – 6:00 PM
+    afternoon: { label:"Afternoon",     start: 14*60, end: 23*60 },        // 2:00 PM – 11:00 PM
+    extended:  { label:"Extended (Thu/Fri)", start: 15*60, end: 24*60 },   // 3:00 PM – 12:00 AM
+    off:       { label:"Day off",       start: null, end: null }
+  };
+
+  // Weekly schedule per employee — index 0=Sun ... 6=Sat. Mock data for this pilot.
+  // In production this would come from the roster sheet instead of being hardcoded.
+  var WEEKLY_SCHEDULE = {
+    "1001": ["morning","morning","afternoon","afternoon","extended","extended","morning"],
+    "1002": ["afternoon","off","morning","morning","extended","extended","morning"],
+    "1003": ["morning","afternoon","off","morning","extended","extended","afternoon"],
+    "1004": ["off","morning","morning","afternoon","extended","extended","off"],
+    "1005": ["afternoon","morning","afternoon","off","extended","extended","afternoon"]
+  };
+
+  function getShiftKeyFor(employeeId, date){
+    var schedule = WEEKLY_SCHEDULE[employeeId];
+    if(!schedule) return "morning"; // fallback
+    return schedule[date.getDay()];
+  }
+  function getShiftInfo(employeeId, date){
+    return SHIFTS[getShiftKeyFor(employeeId, date)];
+  }
+  function fmtShiftTime(min){
+    if(min === null) return "—";
+    var h24 = Math.floor(min / 60) % 24;
+    var m = min % 60;
+    var ampm = h24 >= 12 ? "PM" : "AM";
+    var h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+    return h12 + (m ? ":" + pad(m) : ":00") + " " + ampm;
+  }
+
+  // Store geofence — San Stefano Grand Plaza, Alexandria (mall-level coordinates;
+  // replace with the exact entrance reading from a phone GPS for tighter accuracy)
+  var STORE_LAT = 31.24555;
+  var STORE_LNG = 29.96669;
+  var STORE_RADIUS_M = 150; // allowed distance from the store, in meters
+
+  // QR check-in link looks like: yourpage.html?store=EG222&loc=SanStefano
+  var qrParams = new URLSearchParams(window.location.search);
+  var qrStore = qrParams.get("store");
+  var qrIsPresent = !!qrStore;
+  var qrIsValid = qrStore === STORE_ID;
+
+  function distanceMeters(lat1, lng1, lat2, lng2){
+    var R = 6371000; // Earth radius in meters
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLng = (lng2 - lng1) * Math.PI / 180;
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+            Math.sin(dLng/2) * Math.sin(dLng/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  // Verifies the employee is within range of the store before allowing check-in.
+  // Calls onSuccess() if verified, onFail(message) otherwise.
+  function verifyLocation(onSuccess, onFail){
+    if(!navigator.geolocation){
+      onFail("Location isn't supported on this device — ask your manager to check you in manually.");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      function(pos){
+        var d = Math.round(distanceMeters(pos.coords.latitude, pos.coords.longitude, STORE_LAT, STORE_LNG));
+        if(d <= STORE_RADIUS_M){
+          onSuccess();
+        } else {
+          onFail("You're about " + d + "m from the store. Move closer to check in.");
+        }
+      },
+      function(err){
+        onFail("Location access is off. Enable it in your browser settings to check in.");
+      },
+      { enableHighAccuracy:true, timeout:8000 }
+    );
+  }
+
+  // Login accounts (who can actually sign in to this demo)
+  var USERS = {
+    "1001": { name:"Mohamed Abdelaziz", role:"employee", store:STORE_LABEL, initial:"M" },
+    "1002": { name:"Sara El-Sayed",      role:"employee", store:STORE_LABEL, initial:"S" },
+    "9000": { name:"Ehab Hussein",       role:"admin",    store:STORE_LABEL, initial:"E" }
+  };
+
+  // Full roster used for admin KPIs / absence calculation (mock — only 1001/1002 can actually punch in via login)
+  var ROSTER = [
+    { id:"1001", name:"Mohamed Abdelaziz" },
+    { id:"1002", name:"Sara El-Sayed" },
+    { id:"1003", name:"Youssef Nabil" },
+    { id:"1004", name:"Nourhan Fathy" },
+    { id:"1005", name:"Karim Adel" }
+  ];
+
+  var currentUserId = null;
+
+  // ================================================================
+  // STORAGE LAYER
+  // Record shape: { employeeId, name, store, date, checkInTime, checkOutTime, totalHours, status }
+  // status: "present" | "late" | "missing"
+  // ================================================================
+  function getRecords(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){
+      console.warn("Onsite: could not read localStorage, starting with empty records.", e);
+      return [];
+    }
+  }
+
+  function saveRecords(records){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }catch(e){
+      console.warn("Onsite: could not write to localStorage.", e);
+    }
+  }
+
+  function todayKey(){
+    var d = new Date();
+    return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+  }
+  function pad(n){ return n < 10 ? "0"+n : ""+n; }
+
+  function findTodayRecord(employeeId){
+    var today = todayKey();
+    var records = getRecords();
+    for(var i=0;i<records.length;i++){
+      if(records[i].employeeId === employeeId && records[i].date === today) return records[i];
+    }
+    return null;
+  }
+
+  // Auto-detect forgotten check-outs: any past-day record with no checkOutTime becomes "missing"
+  function detectMissingCheckouts(){
+    var today = todayKey();
+    var records = getRecords();
+    var changed = false;
+    records.forEach(function(r){
+      if(r.date !== today && !r.checkOutTime && r.status !== "missing"){
+        r.status = "missing";
+        changed = true;
+      }
+    });
+    if(changed) saveRecords(records);
+  }
+
+  // ================================================================
+  // VIEW SWITCHING
+  // ================================================================
+  var views = {
+    login: document.getElementById("view-login"),
+    employee: document.getElementById("view-employee"),
+    admin: document.getElementById("view-admin")
+  };
+  function showView(name){
+    Object.keys(views).forEach(function(k){ views[k].classList.toggle("active", k === name); });
+  }
+
+  function greeting(){
+    var h = new Date().getHours();
+    if(h < 12) return "Good morning";
+    if(h < 18) return "Good afternoon";
+    return "Good evening";
+  }
+  function formatDate(d){
+    return (d || new Date()).toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+  }
+  function fmtTime(iso){
+    if(!iso) return "—";
+    return new Date(iso).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+  }
+  function fmtShortDate(dateKey){
+    var parts = dateKey.split("-");
+    var d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+  }
+
+  // ================================================================
+  // LOGIN
+  // ================================================================
+  var loginForm = document.getElementById("loginForm");
+  var loginError = document.getElementById("loginError");
+
+  loginForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    var id = document.getElementById("empId").value.trim();
+    var user = USERS[id];
+    if(!user){
+      loginError.classList.add("show");
+      return;
+    }
+    loginError.classList.remove("show");
+    currentUserId = id;
+    detectMissingCheckouts();
+
+    if(user.role === "admin"){
+      document.getElementById("adminDateSub").textContent = formatDate() + " · " + user.store;
+      renderAdmin();
+      showView("admin");
+    } else {
+      document.getElementById("empName").textContent = user.name.split(" ")[0] + " " + user.name.split(" ")[1][0] + ".";
+      document.getElementById("empAvatar").textContent = user.initial;
+      document.getElementById("empStoreLabel").textContent = user.store;
+      document.getElementById("empGreeting").textContent = greeting() + ", " + user.name.split(" ")[0];
+      document.getElementById("empDateSub").textContent = formatDate() + " · " + user.store;
+      initEmployeeDashboard(id, user);
+      showView("employee");
+    }
+  });
+
+  document.getElementById("msBtn").addEventListener("click", function(){
+    document.getElementById("empId").value = "1001";
+    document.getElementById("empPass").value = "microsoft-sso";
+    loginForm.requestSubmit();
+  });
+
+  document.querySelectorAll("[data-logout]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      clearInterval(elapsedTimer);
+      currentUserId = null;
+      loginForm.reset();
+      loginError.classList.remove("show");
+      showView("login");
+    });
+  });
+
+  // ================================================================
+  // LIVE CLOCKS
+  // ================================================================
+  function tickClock(){
+    var t = new Date().toLocaleTimeString('en-GB');
+    var c1 = document.getElementById("liveClock");
+    var c2 = document.getElementById("liveClockAdmin");
+    if(c1) c1.textContent = t;
+    if(c2) c2.textContent = t;
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  // ================================================================
+  // EMPLOYEE DASHBOARD — CHECK IN / CHECK OUT LOGIC
+  // ================================================================
+  var checkinBtn = document.getElementById("checkinBtn");
+  var checkinLabel = document.getElementById("checkinLabel");
+  var checkinSub = document.getElementById("checkinSub");
+  var checkinMeta = document.getElementById("checkinMeta");
+  var statusBadge = document.getElementById("empStatusBadge");
+  var statusText = document.getElementById("empStatusText");
+
+  var locationNote = document.getElementById("locationNote");
+  var locationNoteText = document.getElementById("locationNoteText");
+
+  var elapsedTimer = null;
+
+  checkinBtn.addEventListener("click", function(){
+    if(checkinBtn.disabled || !currentUserId) return;
+    var todayRecord = findTodayRecord(currentUserId);
+
+    if(!todayRecord){
+      var todaysShiftKey = getShiftKeyFor(currentUserId, new Date());
+      if(todaysShiftKey === "off"){
+        setLocationNote("error", "You're scheduled off today — no check-in needed.");
+        return;
+      }
+      startCheckInFlow();
+    } else if(!todayRecord.checkOutTime){
+      handleCheckOut(todayRecord);
+    }
+    // If todayRecord exists AND has checkOutTime -> day is locked, button is disabled, nothing happens.
+  });
+
+  function setLocationNote(state, text){
+    locationNote.className = "location-note " + state;
+    locationNoteText.textContent = text;
+  }
+
+  // Gate check-in behind QR context (if present) + live GPS distance to the store
+  function startCheckInFlow(){
+    if(qrIsPresent && !qrIsValid){
+      setLocationNote("error", "This QR code doesn't match your store. Scan the code at your store entrance.");
+      return;
+    }
+
+    checkinBtn.disabled = true;
+    checkinLabel.textContent = "Locating…";
+    setLocationNote("checking", "Checking your location…");
+
+    verifyLocation(
+      function onSuccess(){
+        setLocationNote("ok", qrIsPresent ? "Store QR + location verified." : "Location verified — you're at the store.");
+        checkinBtn.disabled = false;
+        handleCheckIn();
+      },
+      function onFail(message){
+        checkinBtn.disabled = false;
+        checkinLabel.textContent = "Check In";
+        setLocationNote("error", message);
+      }
+    );
+  }
+
+  function handleCheckIn(){
+    var user = USERS[currentUserId];
+    var now = new Date();
+    var minutesNow = now.getHours() * 60 + now.getMinutes();
+    var shiftKey = getShiftKeyFor(currentUserId, now);
+    var shift = SHIFTS[shiftKey];
+    var isLate = minutesNow > shift.start + LATE_GRACE_MIN;
+
+    var record = {
+      employeeId: currentUserId,
+      name: user.name,
+      store: STORE_ID,
+      date: todayKey(),
+      shift: shiftKey,
+      checkInTime: now.toISOString(),
+      checkOutTime: null,
+      totalHours: null,
+      status: isLate ? "late" : "present"
+    };
+
+    var records = getRecords();
+    records.push(record);
+    saveRecords(records);
+
+    renderEmployeeState(record);
+    renderEmployeeStats();
+  }
+
+  function handleCheckOut(record){
+    var now = new Date();
+    // Guard: never allow checkout to be saved before its own check-in time
+    if(new Date(record.checkInTime) > now){
+      return;
+    }
+    var diffHours = (now - new Date(record.checkInTime)) / 3600000;
+
+    var records = getRecords();
+    for(var i=0;i<records.length;i++){
+      if(records[i].employeeId === record.employeeId && records[i].date === record.date){
+        records[i].checkOutTime = now.toISOString();
+        records[i].totalHours = Math.round(diffHours * 100) / 100;
+        record = records[i];
+        break;
+      }
+    }
+    saveRecords(records);
+
+    renderEmployeeState(record);
+    renderEmployeeStats();
+  }
+
+  // Sets the check-in card UI to match a given record (or null = not checked in)
+  function renderEmployeeState(record){
+    clearInterval(elapsedTimer);
+
+    if(!record){
+      checkinBtn.disabled = false;
+      checkinBtn.classList.remove("checked-in", "pulse");
+      checkinLabel.textContent = "Check In";
+      checkinSub.textContent = "Tap to start shift";
+      statusBadge.className = "status-badge out";
+      statusText.textContent = "Not checked in";
+      var todaysShift = getShiftInfo(currentUserId, new Date());
+      if(todaysShift.start === null){
+        checkinBtn.disabled = true;
+        checkinLabel.textContent = "Day off";
+        checkinSub.textContent = "No shift scheduled";
+        checkinMeta.textContent = "You're scheduled off today";
+        setLocationNote("checking", "Nothing to check in for today.");
+        return;
+      }
+      checkinMeta.textContent = "Shift starts " + fmtShiftTime(todaysShift.start) + " · Not yet checked in today";
+      setLocationNote("checking", qrIsPresent
+        ? (qrIsValid ? "Store QR verified — we'll confirm your location on check in." : "This QR doesn't match your store.")
+        : "We'll check your location when you check in.");
+      return;
+    }
+
+    if(!record.checkOutTime){
+      // Currently on shift
+      checkinBtn.disabled = false;
+      checkinBtn.classList.add("checked-in", "pulse");
+      checkinLabel.textContent = "Check Out";
+      checkinSub.textContent = "Tap to end shift";
+      statusBadge.className = "status-badge " + (record.status === "late" ? "late" : "present");
+      statusText.textContent = record.status === "late" ? "Checked in · Late" : "Checked in · Present";
+      setLocationNote("ok", "Checked in from store location.");
+
+      updateElapsed(record);
+      elapsedTimer = setInterval(function(){ updateElapsed(record); }, 1000);
+    } else {
+      // Day completed and locked
+      checkinBtn.classList.remove("pulse");
+      checkinBtn.classList.add("checked-in");
+      checkinBtn.disabled = true;
+      checkinLabel.textContent = "Shift completed";
+      checkinSub.textContent = "See you tomorrow";
+      statusBadge.className = "status-badge present";
+      statusText.textContent = "Completed Shift";
+      checkinMeta.innerHTML = "Worked <strong>" + fmtTime(record.checkInTime) + " – " + fmtTime(record.checkOutTime) +
+        "</strong> · Total <strong>" + record.totalHours + " hrs</strong>";
+      setLocationNote("ok", "Shift complete for today.");
+    }
+  }
+
+  function updateElapsed(record){
+    var diffMs = new Date() - new Date(record.checkInTime);
+    var totalMin = Math.floor(diffMs / 60000);
+    var h = Math.floor(totalMin / 60);
+    var m = totalMin % 60;
+    var s = Math.floor((diffMs % 60000) / 1000);
+    var elapsed = (h > 0 ? h + "h " : "") + m + "m " + s + "s";
+    checkinMeta.innerHTML = "Checked in at <strong>" + fmtTime(record.checkInTime) + "</strong> · On shift for <strong>" + elapsed + "</strong>";
+  }
+
+  // Restores UI + history + stats when an employee logs in
+  function initEmployeeDashboard(employeeId, user){
+    var todayRecord = findTodayRecord(employeeId);
+    renderEmployeeState(todayRecord);
+    renderEmployeeHistory(employeeId);
+    renderEmployeeStats(employeeId);
+
+    var todaysShift = getShiftInfo(employeeId, new Date());
+    var shiftKey = getShiftKeyFor(employeeId, new Date());
+    document.getElementById("statTodayShift").textContent = todaysShift.start === null
+      ? "Off today"
+      : fmtShiftTime(todaysShift.start) + " – " + fmtShiftTime(todaysShift.end);
+    document.getElementById("statTodayShiftLabel").textContent = shiftKey === "off" ? "Enjoy your day" : todaysShift.label + " · " + STORE_LABEL;
+  }
+
+  function renderEmployeeHistory(employeeId){
+    var body = document.getElementById("empHistoryBody");
+    var records = getRecords()
+      .filter(function(r){ return r.employeeId === employeeId; })
+      .sort(function(a,b){ return a.date < b.date ? 1 : -1; })
+      .slice(0, 7);
+
+    if(records.length === 0){
+      body.innerHTML = "<tr><td colspan='4' style='text-align:center; color:var(--gray-500); padding:26px;'>No attendance recorded yet.</td></tr>";
+      return;
+    }
+
+    body.innerHTML = records.map(function(r){
+      var pillClass = r.status === "late" ? "late" : (r.status === "missing" ? "absent" : "present");
+      var pillLabel = r.status === "late" ? "Late" : (r.status === "missing" ? "Missing check-out" : "Present");
+      return "<tr><td class='strong'>" + fmtShortDate(r.date) + "</td><td>" + fmtTime(r.checkInTime) +
+        "</td><td>" + fmtTime(r.checkOutTime) + "</td>" +
+        "<td><span class='pill " + pillClass + "'><span class='dot'></span>" + pillLabel + "</span></td></tr>";
+    }).join("");
+  }
+
+  function renderEmployeeStats(employeeId){
+    employeeId = employeeId || currentUserId;
+    var now = new Date();
+    var records = getRecords().filter(function(r){ return r.employeeId === employeeId; });
+
+    // This month
+    var monthPrefix = now.getFullYear() + "-" + pad(now.getMonth()+1);
+    var monthRecords = records.filter(function(r){ return r.date.indexOf(monthPrefix) === 0; });
+    var lateCount = monthRecords.filter(function(r){ return r.status === "late"; }).length;
+    document.getElementById("statMonthDays").textContent = monthRecords.length + " / " + now.getDate() + " days";
+    document.getElementById("statMonthLate").textContent = lateCount + (lateCount === 1 ? " late arrival" : " late arrivals");
+
+    // This week (last 7 days, sum totalHours)
+    var weekCutoff = new Date();
+    weekCutoff.setDate(weekCutoff.getDate() - 7);
+    var weekHours = records
+      .filter(function(r){ return r.totalHours && new Date(r.date) >= weekCutoff; })
+      .reduce(function(sum, r){ return sum + r.totalHours; }, 0);
+    document.getElementById("statWeekHours").textContent = (Math.round(weekHours * 10) / 10) + " hrs";
+  }
+
+  // ================================================================
+  // ADMIN DASHBOARD — LIVE FROM LOCALSTORAGE
+  // ================================================================
+  var filterStore = document.getElementById("filterStore");
+  var filterDate = document.getElementById("filterDate");
+  var filterEmployee = document.getElementById("filterEmployee");
+  var filterStatus = document.getElementById("filterStatus");
+
+  // Populate employee filter once from roster
+  ROSTER.forEach(function(emp){
+    var opt = document.createElement("option");
+    opt.value = emp.id;
+    opt.textContent = emp.name;
+    filterEmployee.appendChild(opt);
+  });
+
+  [filterStore, filterDate, filterEmployee, filterStatus].forEach(function(sel){
+    sel.addEventListener("change", renderAdmin);
+  });
+
+  function renderAdmin(){
+    detectMissingCheckouts();
+    var records = getRecords();
+    var today = todayKey();
+    var todayDateObj = new Date();
+
+    // ---- KPIs are always based on TODAY, regardless of table filters ----
+    var todayRecords = records.filter(function(r){ return r.date === today; });
+    var scheduledToday = ROSTER.filter(function(emp){ return getShiftKeyFor(emp.id, todayDateObj) !== "off"; });
+    var presentCount = todayRecords.filter(function(r){ return r.status === "present"; }).length;
+    var lateCount = todayRecords.filter(function(r){ return r.status === "late"; }).length;
+    var absentCount = Math.max(scheduledToday.length - todayRecords.length, 0);
+    var missingCount = records.filter(function(r){ return r.status === "missing"; }).length;
+
+    document.getElementById("kpiPresent").textContent = presentCount;
+    document.getElementById("kpiPresentSub").textContent = "of " + scheduledToday.length + " scheduled today";
+    document.getElementById("kpiLate").textContent = lateCount;
+    document.getElementById("kpiLateSub").textContent = lateCount === 0 ? "no late arrivals yet" : (lateCount + " arrived late today");
+    document.getElementById("kpiAbsent").textContent = absentCount;
+    document.getElementById("kpiMissing").textContent = missingCount;
+
+    // ---- Table rows ----
+    var rows = [];
+
+    if(filterDate.value === "today"){
+      // Synthesize one row per roster employee for today (including Absent)
+      ROSTER.forEach(function(emp){
+        var rec = todayRecords.find(function(r){ return r.employeeId === emp.id; });
+        var todaysShiftKey = getShiftKeyFor(emp.id, new Date());
+        rows.push(rec ? rec : {
+          employeeId: emp.id, name: emp.name, store: STORE_ID, date: today, shift: todaysShiftKey,
+          checkInTime: null, checkOutTime: null, totalHours: null,
+          status: todaysShiftKey === "off" ? "leave" : "absent"
+        });
+      });
+    } else {
+      rows = records.slice().sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+    }
+
+    // Apply filters
+    if(filterEmployee.value !== "all"){
+      rows = rows.filter(function(r){ return r.employeeId === filterEmployee.value; });
+    }
+    if(filterStatus.value !== "all"){
+      rows = rows.filter(function(r){ return r.status === filterStatus.value; });
+    }
+    // filterStore is a no-op for now (single store in this pilot) — kept for when multi-store data lands
+
+    var body = document.getElementById("adminTableBody");
+    if(rows.length === 0){
+      body.innerHTML = "<tr><td colspan='7' style='text-align:center; color:var(--gray-500); padding:26px;'>No records match these filters.</td></tr>";
+      return;
+    }
+
+    var pillMap = {
+      present: ["present", "Present"],
+      late: ["late", "Late"],
+      absent: ["absent", "Absent"],
+      missing: ["absent", "Missing check-out"],
+      leave: ["leave", "Day off"]
+    };
+
+    body.innerHTML = rows.map(function(r){
+      var pill = pillMap[r.status] || ["leave", r.status];
+      var dateCell = filterDate.value === "today" ? "Today" : fmtShortDate(r.date);
+      var shiftLabel = r.shift ? SHIFTS[r.shift].label : "—";
+      return "<tr><td class='strong'>" + r.name + "</td>" +
+        "<td><span class='store-cell'><span class='store-dot'></span>" + r.store + "</span></td>" +
+        "<td>" + shiftLabel + "</td>" +
+        "<td>" + dateCell + "</td>" +
+        "<td>" + fmtTime(r.checkInTime) + "</td>" +
+        "<td>" + fmtTime(r.checkOutTime) + "</td>" +
+        "<td><span class='pill " + pill[0] + "'><span class='dot'></span>" + pill[1] + "</span></td></tr>";
+    }).join("");
+  }
+
+  // ================================================================
+  // SIDEBAR NAV (visual only — this prototype has one page per role)
+  // ================================================================
+  document.querySelectorAll("[data-emp-nav], [data-admin-nav]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var group = btn.closest(".nav-group");
+      group.querySelectorAll(".nav-item").forEach(function(i){ i.classList.remove("active"); });
+      btn.classList.add("active");
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
